@@ -1,1 +1,47 @@
+import java.util.*;
+
+ class Solution {
+    public int shoppingOffers(List<Integer> price, List<List<Integer>> special, List<Integer> needs) {
+        return dfs(price, special, needs, new HashMap<>());
+    }
+
+    private int dfs(List<Integer> price, List<List<Integer>> special, List<Integer> needs, Map<List<Integer>, Integer> memo) {
+        // Check memoized results
+        if (memo.containsKey(needs)) {
+            return memo.get(needs);
+        }
+
+        // Calculate the cost without any special offers (direct purchase)
+        int directCost = 0;
+        for (int i = 0; i < needs.size(); i++) {
+            directCost += needs.get(i) * price.get(i);
+        }
+
+        int minCost = directCost;
+
+        // Try each special offer
+        for (List<Integer> offer : special) {
+            List<Integer> updatedNeeds = new ArrayList<>();
+            boolean valid = true;
+
+            // Check if the special offer is valid
+            for (int i = 0; i < needs.size(); i++) {
+                if (needs.get(i) < offer.get(i)) {
+                    valid = false; // Offer exceeds current needs
+                }
+                updatedNeeds.add(needs.get(i) - offer.get(i));
+            }
+
+            // If valid, calculate the cost using this offer
+            if (valid) {
+                minCost = Math.min(minCost, offer.get(needs.size()) + dfs(price, special, updatedNeeds, memo));
+            }
+        }
+
+        // Memoize the result for the current state
+        memo.put(needs, minCost);
+
+        return minCost;
+    }
+ }
 
